@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五月動物園養殖 V27-視覺完全體</title>
+    <title>五月動物園養殖 V28-流暢體驗版</title>
     <style>
         :root { --p: #558b2f; --bg: #fdfaf5; --text: #443e39; --accent: #ff7043; --hp-bg: #e0e0e0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
         body { background: var(--bg); color: var(--text); padding: 10px; max-width: 100vw; overflow-x: hidden; }
         
-        /* 1. 移除輸入框上下箭頭 */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
@@ -24,11 +23,12 @@
 
         .dino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
         
-        /* 3. 動物圖片層級與顯示修正 */
-        .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.08); overflow: hidden; min-height: 400px; }
-        .card-bg-icon { position: absolute; font-size: 200px; color: rgba(0,0,0,0.05); right: -30px; bottom: -30px; transform: rotate(-15deg); pointer-events: none; z-index: 0; display: block !important; }
+        .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.08); min-height: 400px; padding-top: 60px; /* 為上方頭像留空間 */ margin-top: 30px; /* 增加上方邊距 */}
+        
+        /* 1. 恢復上方頭像設定 */
+        .card-avatar { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 50px; width: 80px; height: 80px; background: white; border: 5px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 10; }
 
-        .stamp { position: absolute; top: 10px; left: -10px; transform: rotate(-15deg); padding: 4px 12px; border: 2px solid #ccc; color: #ccc; font-weight: bold; font-size: 0.7rem; border-radius: 5px; cursor: pointer; background: white; z-index: 10; }
+        .stamp { position: absolute; top: 10px; left: -10px; transform: rotate(-15deg); padding: 4px 12px; border: 2px solid #ccc; color: #ccc; font-weight: bold; font-size: 0.7rem; border-radius: 5px; cursor: pointer; background: white; z-index: 11; }
         .stamp.active { border-color: #f44336; color: #f44336; }
 
         .editable-title { width: 100%; border: none; background: transparent; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--p); border-bottom: 1px dashed #ccc; margin-bottom: 10px; position: relative; z-index: 2; }
@@ -56,7 +56,7 @@
 
 <div class="header-banner">
     <h1>五月動物園養殖</h1>
-    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 讀取中...</p>
+    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 正在與雲端連線...</p>
 </div>
 
 <table class="perf-table">
@@ -76,14 +76,14 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxpzlFOkwTEY6TiOybrPfQImTSTUd-KICltPBlTsUtTE96_7RpOPOhairXBB5lgPdQD2A/exec"; 
 
 const defaultDinos = [
-    { id: 0, icon: "🦖", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false },
-    { id: 1, icon: "🐳", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
-    { id: 2, icon: "🦉", name: "板橋環球", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
-    { id: 3, icon: "🐠", name: "內湖三總", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
-    { id: 4, icon: "🦕", name: "日月光B1", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
-    { id: 5, icon: "🐄", name: "北榮", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
-    { id: 6, icon: "🦞", name: "林口A9", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
-    { id: 7, icon: "🐓", name: "松山機場", taxRate: 33, rent: 0, extraTax: 0, harvested: false }
+    { id: 0, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false },
+    { id: 1, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 2, icon: "Owl", name: "板橋環球", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 3, icon: "Fish", name: "內湖三總", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 4, icon: "Dino", name: "日月光B1", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 5, icon: "Cow", name: "北榮", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 6, icon: "Lobster", name: "林口A9", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 7, icon: "Rooster", name: "松山機場", taxRate: 33, rent: 0, extraTax: 0, harvested: false }
 ];
 
 let counters = JSON.parse(JSON.stringify(defaultDinos)).map(d => ({ ...d, logs: [] }));
@@ -93,6 +93,12 @@ function parseCloudDate(dateInput) {
     let dStr = String(dateInput);
     if (dStr.includes('T')) return dStr.split('T')[0].slice(5);
     return dStr.length > 5 ? dStr.slice(0,5) : dStr;
+}
+
+// 輔助函數：將 Emoji 轉為真正的符號
+function getDinoEmoji(iconName) {
+    const emojis = { "Rex": "🦖", "Whale": "🐳", "Owl": "🦉", "Fish": "🐠", "Dino": "🦕", "Cow": "🐄", "Lobster": "🦞", "Rooster": "🐓" };
+    return emojis[iconName] || "❓";
 }
 
 async function fetchCloudData() {
@@ -107,7 +113,7 @@ async function fetchCloudData() {
         document.getElementById('status-msg').innerText = "✅ 同步更新完成";
         render();
     } catch (e) {
-        document.getElementById('status-msg').innerText = "⚠️ 目前離線中";
+        document.getElementById('status-msg').innerText = "⚠️ 載入失敗 (離線模式)";
         render();
     }
 }
@@ -130,12 +136,13 @@ function render() {
         const hpLimit = 80000;
         const hpPercent = Math.min(Math.max((profit / hpLimit) * 100, 0), 100);
 
-        perfData.push({ icon: c.icon, name: c.name, rev, profit, hpPercent, harvested: c.harvested });
+        perfData.push({ icon: getDinoEmoji(c.icon), name: c.name, rev, profit, hpPercent, harvested: c.harvested });
 
         const card = document.createElement('div');
         card.className = 'dino-card';
         card.innerHTML = `
-            <div class="card-bg-icon">${c.icon}</div>
+            <div class="card-avatar">${getDinoEmoji(c.icon)}</div>
+            
             <div class="stamp ${c.harvested ? 'active' : ''}" onclick="toggleHarvest(${c.id})">7/15 收成</div>
             
             <input class="editable-title" type="text" value="${c.name}" onchange="update(${c.id}, 'name', this.value)">
@@ -186,10 +193,9 @@ function render() {
         container.appendChild(card);
     });
 
-    // 2. 上方總覽加入收成章狀態
     perfData.sort((a,b) => b.profit - a.profit).forEach(p => {
         perfBody.innerHTML += `<tr>
-            <td>${p.harvested ? '<span style="color:#f44336; font-weight:bold;">[已收]</span> ' : ''}${p.icon} ${p.name}</td>
+            <td>${p.harvested ? '<span style="color:#f44336; font-weight:bold;">[收]</span> ' : ''}${p.icon} ${p.name}</td>
             <td>$${p.rev.toLocaleString()}</td>
             <td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
             <td>${p.hpPercent.toFixed(0)}%</td>
@@ -200,12 +206,12 @@ function render() {
     document.getElementById('gExp').innerText = '$' + gExp.toLocaleString(undefined, {maximumFractionDigits:0});
     document.getElementById('gProfit').innerText = '$' + (gRev - gExp).toLocaleString(undefined, {maximumFractionDigits:0});
     
-    localStorage.setItem('zoo_v27_settings', JSON.stringify(counters.map(c => ({
+    localStorage.setItem('zoo_v28_settings', JSON.stringify(counters.map(c => ({
         id: c.id, et: c.extraTax, rt: c.rent, tr: c.taxRate, hv: c.harvested, nm: c.name
     }))));
 }
 
-const savedSettings = JSON.parse(localStorage.getItem('zoo_v27_settings'));
+const savedSettings = JSON.parse(localStorage.getItem('zoo_v28_settings'));
 if(savedSettings) savedSettings.forEach(s => { 
     const d = counters.find(c => c.id === s.id); 
     if(d) { d.extraTax = s.et; d.rent = s.rt; d.taxRate = s.tr; d.harvested = s.hv; d.name = s.nm; } 
@@ -217,14 +223,26 @@ window.toggleHarvest = (id) => { counters[id].harvested = !counters[id].harveste
 async function addAndSync(id) {
     const q = document.getElementById(`qty-${id}`), a = document.getElementById(`amt-${id}`), d = document.getElementById(`date-${id}`);
     if (a.value === "") return alert("請輸入金額");
+    
+    // 2. 解決延遲核心邏輯 (立刻本地更新，不等待雲端回傳)
     const log = { date: d.value.slice(5), amt: parseFloat(a.value) || 0, qty: parseInt(q.value) || 0 };
     const sData = { ...log, name: counters[id].name, fullDate: d.value };
-    document.getElementById('status-msg').innerText = "⏳ 同步中...";
+    
+    // A. 搶先將紀錄塞進本地資料庫，讓畫面立刻跳動
+    counters[id].logs.push(log);
+    render(); 
+    
+    // B. 清空輸入框
+    q.value = ''; a.value = '';
+    
+    // C. 在背景同步到 Google 表格
+    document.getElementById('status-msg').innerText = "⏳ 正在傳送到雲端...";
     try {
         await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(sData) });
-        q.value = ''; a.value = '';
-        setTimeout(fetchCloudData, 1200); 
-    } catch (e) { alert("同步失敗"); }
+        document.getElementById('status-msg').innerText = "✅ 雲端同步完成";
+    } catch (e) { 
+        document.getElementById('status-msg').innerText = "❌ 雲端傳送失敗 (但資料已記錄在手機)";
+    }
 }
 
 fetchCloudData();
