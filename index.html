@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五月動物園養殖 V24-數據即時更新版</title>
+    <title>五月動物園養殖 V25-日期鎖定版</title>
     <style>
         :root { --p: #558b2f; --bg: #fdfaf5; --text: #443e39; --accent: #ff7043; --hp-bg: #e0e0e0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
@@ -11,7 +11,6 @@
         
         .header-banner { width: 100%; padding: 15px; background: #a8e6cf linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 15px; text-align: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* 1. 恢復動物表現總覽 */
         .perf-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 15px; background: white; border-radius: 15px; overflow: hidden; border: 2px solid #558b2f; }
         .perf-table th { background: #f0f4ef; padding: 8px; border-bottom: 2px solid #558b2f; }
         .perf-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; }
@@ -22,11 +21,11 @@
         .dino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 15px; }
         
         .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.08); overflow: hidden; }
-        .card-bg-icon { position: absolute; font-size: 150px; color: rgba(0,0,0,0.03); right: -30px; bottom: -30px; transform: rotate(-15deg); pointer-events: none; }
+        /* 3. 動物圖片放大 */
+        .card-bg-icon { position: absolute; font-size: 180px; color: rgba(0,0,0,0.03); right: -40px; bottom: -40px; transform: rotate(-15deg); pointer-events: none; z-index: 0; }
 
         .editable-title { width: 100%; border: none; background: transparent; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--p); border-bottom: 1px dashed #ccc; margin-bottom: 10px; position: relative; z-index: 1; }
         
-        /* 血條區 */
         .hp-container { width: 180px; height: 16px; background: var(--hp-bg); margin: 0 auto 10px; border-radius: 10px; border: 2px solid #999; overflow: hidden; position: relative; z-index: 1; }
         .hp-bar { height: 100%; background: linear-gradient(to right, #ffeb3b, #4caf50); width: 0%; transition: width 0.6s ease; }
         .hp-marker { position: absolute; width: 100%; text-align: center; font-size: 10px; line-height: 14px; top: 0; left: 0; pointer-events: none; }
@@ -39,18 +38,17 @@
         
         button { width: 100%; padding: 12px; border-radius: 15px; border: none; background: var(--p); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; position: relative; z-index: 1; }
 
-        /* 2. 餵食紀錄順序優化 */
-        .log-list { margin-top: 10px; height: 150px; overflow-y: auto; font-size: 0.8rem; border-top: 1px solid #eee; position: relative; z-index: 1; }
+        /* 2. 移除修改功能，純文字顯示 */
+        .log-list { margin-top: 10px; height: 150px; overflow-y: auto; font-size: 0.85rem; border-top: 1px solid #eee; position: relative; z-index: 1; }
         .log-list table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .log-list td { padding: 6px 2px; border-bottom: 1px solid #f9f9f9; text-align: center; word-break: break-all; }
-        .log-label { font-size: 0.7rem; color: #999; }
+        .log-list td { padding: 8px 2px; border-bottom: 1px solid #f2f2f2; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="header-banner">
     <h1>五月動物園養殖</h1>
-    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 正在讀取雲端數據...</p>
+    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 數據載入中...</p>
 </div>
 
 <table class="perf-table">
@@ -67,31 +65,35 @@
 <div id="dinoContainer" class="dino-grid"></div>
 
 <script>
-// ⚠️ 使用你最新的 GAS 網址
+// 使用你最新的 GAS 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxpzlFOkwTEY6TiOybrPfQImTSTUd-KICltPBlTsUtTE96_7RpOPOhairXBB5lgPdQD2A/exec"; 
 
 const defaultDinos = [
-    { id: 0, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0 },
-    { id: 1, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0 },
-    { id: 2, icon: "Owl", name: "板橋環球", taxRate: 33, rent: 0, extraTax: 0 },
-    { id: 3, icon: "Fish", name: "內湖三總", taxRate: 33, rent: 0, extraTax: 0 },
-    { id: 4, icon: "Dino", name: "日月光B1", taxRate: 33, rent: 0, extraTax: 0 },
-    { id: 5, icon: "Cow", name: "北榮", taxRate: 33, rent: 0, extraTax: 0 },
-    { id: 6, icon: "Lobster", name: "林口A9", taxRate: 33, rent: 0, extraTax: 0 },
-    { id: 7, icon: "Rooster", name: "北投", taxRate: 33, rent: 0, extraTax: 0 }
+    { id: 0, icon: "🦖", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0 },
+    { id: 1, icon: "🐳", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0 },
+    { id: 2, icon: "🦉", name: "板橋環球", taxRate: 33, rent: 0, extraTax: 0 },
+    { id: 3, icon: "🐠", name: "內湖三總", taxRate: 33, rent: 0, extraTax: 0 },
+    { id: 4, icon: "🦕", name: "日月光B1", taxRate: 33, rent: 0, extraTax: 0 },
+    { id: 5, icon: "🐄", name: "北榮", taxRate: 33, rent: 0, extraTax: 0 },
+    { id: 6, icon: "🦞", name: "林口A9", taxRate: 33, rent: 0, extraTax: 0 },
+    { id: 7, icon: "🐓", name: "北投", taxRate: 33, rent: 0, extraTax: 0 }
 ];
 
 let counters = JSON.parse(JSON.stringify(defaultDinos)).map(d => ({ ...d, logs: [] }));
 
+// 1. 強化日期解析，徹底過濾 T07:00:00 亂碼
 function parseCloudDate(dateInput) {
     if (!dateInput) return "";
     let dStr = String(dateInput);
-    if (dStr.includes('T')) return dStr.split('T')[0].slice(5);
+    if (dStr.includes('T')) {
+        let onlyDate = dStr.split('T')[0]; // 擷取 2024-04-29
+        return onlyDate.slice(5); // 傳回 04-29
+    }
     if (dStr.includes('/')) {
         let parts = dStr.split('/');
         if (parts.length >= 3) return `${parts[1].padStart(2, '0')}-${parts[2].split(' ')[0].padStart(2, '0')}`;
     }
-    return dStr; 
+    return dStr.length > 5 ? dStr.slice(0,5) : dStr;
 }
 
 async function fetchCloudData() {
@@ -105,10 +107,10 @@ async function fetchCloudData() {
                 dino.logs.push({ date: parseCloudDate(row.date), qty: row.qty, amt: row.amt });
             }
         });
-        document.getElementById('status-msg').innerText = "✅ 同步更新成功 (" + new Date().toLocaleTimeString() + ")";
+        document.getElementById('status-msg').innerText = "✅ 同步更新成功";
         render();
     } catch (e) {
-        document.getElementById('status-msg').innerText = "⚠️ 數據載入中...";
+        document.getElementById('status-msg').innerText = "⚠️ 讀取雲端失敗";
         render();
     }
 }
@@ -124,12 +126,10 @@ function render() {
         const qty = c.logs.reduce((s, l) => s + (Number(l.qty) || 0), 0);
         const cost = qty * 55.2;
         const tax = rev * (c.taxRate / 100);
-        // 3. 補繳稅邏輯：飽食度扣除補繳稅
         const profit = rev - tax - cost - (c.rent || 0) - (c.extraTax || 0);
 
         gRev += rev; 
         gExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
-
         const hpLimit = 80000;
         const hpPercent = Math.min(Math.max((profit / hpLimit) * 100, 0), 100);
 
@@ -138,7 +138,7 @@ function render() {
         const card = document.createElement('div');
         card.className = 'dino-card';
         card.innerHTML = `
-            <div class="card-bg-icon">${c.icon === 'Rex' ? '🦖' : c.icon === 'Whale' ? '🐳' : c.icon === 'Owl' ? '🦉' : c.icon === 'Fish' ? '🐠' : c.icon === 'Dino' ? '🦕' : c.icon === 'Cow' ? '🐄' : c.icon === 'Lobster' ? '🦞' : '🐓'}</div>
+            <div class="card-bg-icon">${c.icon}</div>
             <input class="editable-title" type="text" value="${c.name}" onchange="update(${c.id}, 'name', this.value)">
             <div class="hp-container">
                 <div class="hp-bar" style="width: ${hpPercent}%; ${hpPercent >= 100 ? 'background: #00e676;' : ''}"></div>
@@ -166,8 +166,8 @@ function render() {
                 <table>
                     ${c.logs.map((l) => `
                         <tr>
-                            <td width="35%">${l.date}</td>
-                            <td width="25%">${l.qty}只</td>
+                            <td width="30%">${l.date}</td>
+                            <td width="30%">${l.qty}只</td>
                             <td width="40%">$${Number(l.amt).toLocaleString()}</td>
                         </tr>
                     `).reverse().join('')}
@@ -179,7 +179,7 @@ function render() {
 
     perfData.sort((a,b) => b.profit - a.profit).forEach(p => {
         perfBody.innerHTML += `<tr>
-            <td>${p.name}</td>
+            <td>${p.icon} ${p.name}</td>
             <td>$${p.rev.toLocaleString()}</td>
             <td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
             <td>${p.hpPercent.toFixed(0)}%</td>
@@ -189,11 +189,10 @@ function render() {
     document.getElementById('gRev').innerText = '$' + gRev.toLocaleString();
     document.getElementById('gExp').innerText = '$' + gExp.toLocaleString(undefined, {maximumFractionDigits:0});
     document.getElementById('gProfit').innerText = '$' + (gRev - gExp).toLocaleString(undefined, {maximumFractionDigits:0});
-    localStorage.setItem('zoo_v24_extratax', JSON.stringify(counters.map(c => ({id:c.id, et:c.extraTax}))));
+    localStorage.setItem('zoo_v25_extratax', JSON.stringify(counters.map(c => ({id:c.id, et:c.extraTax}))));
 }
 
-// 載入暫存的補繳稅設定
-const savedTax = JSON.parse(localStorage.getItem('zoo_v24_extratax'));
+const savedTax = JSON.parse(localStorage.getItem('zoo_v25_extratax'));
 if(savedTax) savedTax.forEach(s => { const d = counters.find(c => c.id === s.id); if(d) d.extraTax = s.et; });
 
 window.update = (id, f, v) => { counters[id][f] = (f==='name'?v:parseFloat(v)||0); render(); };
@@ -207,13 +206,11 @@ async function addAndSync(id) {
     try {
         await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(sData) });
         q.value = ''; a.value = '';
-        setTimeout(fetchCloudData, 1500); // 延遲抓取確保 GAS 已處理完畢
+        setTimeout(fetchCloudData, 1200); 
     } catch (e) { alert("同步失敗"); }
 }
 
 fetchCloudData();
-// 每 5 分鐘自動刷新一次雲端數據
-setInterval(fetchCloudData, 300000);
 </script>
 </body>
 </html>
