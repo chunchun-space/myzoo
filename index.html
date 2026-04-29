@@ -3,39 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五月動物園養殖 V21-同步穩定版</title>
+    <title>五月動物園養殖 V22-手機優化版</title>
     <style>
         :root { --p: #558b2f; --bg: #fdfaf5; --text: #443e39; --accent: #ff7043; --hp-bg: #e0e0e0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 10px; }
-        .header-banner { width: 100%; padding: 20px; background: #a8e6cf linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 15px; text-align: center; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 15px; background: white; border-radius: 15px; overflow: hidden; border: 2px solid #558b2f; }
-        .perf-table th { background: #f0f4ef; padding: 5px; }
-        .perf-table td { padding: 5px 2px; text-align: center; border-bottom: 1px solid #eee; }
-        .summary-box { background: white; padding: 15px; border-radius: 20px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; border: 2px solid #e1e8e1; }
-        .dino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
-        .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
-        .editable-title { width: 100%; border: none; background: transparent; text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--p); border-bottom: 1px dashed #ccc; margin-bottom: 10px; }
+        body { background: var(--bg); color: var(--text); padding: 10px; max-width: 100vw; overflow-x: hidden; }
         
-        /* 數量縮小, 金額放大 */
-        .input-row { display: grid; grid-template-columns: 1.2fr 0.6fr 1.8fr; gap: 4px; margin-bottom: 10px; }
-        .input-row input { padding: 8px 4px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.85rem; width: 100%; }
+        .header-banner { width: 100%; padding: 15px; background: #a8e6cf linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 15px; text-align: center; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        button { width: 100%; padding: 12px; border-radius: 15px; border: none; background: var(--p); color: white; font-weight: bold; cursor: pointer; }
-        .log-list { margin-top: 10px; height: 130px; overflow-y: auto; font-size: 0.75rem; border-top: 1px solid #eee; }
+        /* 總覽表格優化 */
+        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-bottom: 15px; background: white; border-radius: 15px; overflow: hidden; border: 2px solid #558b2f; table-layout: fixed; }
+        .perf-table th { background: #f0f4ef; padding: 8px 4px; border-bottom: 2px solid #558b2f; }
+        .perf-table td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #eee; word-break: break-all; }
+
+        .summary-box { background: white; padding: 12px; border-radius: 20px; margin-bottom: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; text-align: center; border: 2px solid #e1e8e1; }
+        .summary-box div span { font-size: 0.7rem; color: #888; display: block; }
+        .summary-box div b { font-size: 0.85rem; }
+
+        .dino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; width: 100%; }
+        .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; }
+        
+        .editable-title { width: 100%; border: none; background: transparent; text-align: center; font-size: 1.25rem; font-weight: bold; color: var(--p); border-bottom: 1px dashed #ccc; margin-bottom: 10px; padding: 5px 0; }
+        
+        .calc-area { background: #fffde7; padding: 10px; border-radius: 12px; margin-bottom: 10px; font-size: 0.85rem; }
+        .calc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+
+        /* 數量格子寬度優化：日期佔 1.2, 數量佔 0.6, 金額佔 1.8 */
+        .input-row { display: grid; grid-template-columns: 1.2fr 0.6fr 1.8fr; gap: 5px; margin-bottom: 10px; }
+        .input-row input { padding: 8px 4px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.85rem; width: 100%; -webkit-appearance: none; }
+        
+        button { width: 100%; padding: 12px; border-radius: 15px; border: none; background: var(--p); color: white; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.98); background: #388e3c; }
+
+        .log-list { margin-top: 10px; height: 120px; overflow-y: auto; font-size: 0.8rem; border-top: 1px solid #eee; background: #fafafa; border-radius: 0 0 15px 15px; }
         .log-list table { width: 100%; border-collapse: collapse; }
-        .log-input { border: 1px solid #eee; width: 100%; text-align: center; padding: 2px; }
+        .log-list td { padding: 6px 2px; border-bottom: 1px solid #eee; text-align: center; }
+
+        @media (max-width: 350px) {
+            .dino-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
 <div class="header-banner">
-    <h1>五月動物園養殖</h1>
-    <p id="status-msg" style="font-size:0.75rem;">⌛ 正在同步雲端資料...</p>
+    <h1 style="color:#2e7d32; font-size:1.5rem;">五月動物園養殖</h1>
+    <p id="status-msg" style="font-size:0.8rem; color:#666;">⌛ 正在與雲端同步資料...</p>
 </div>
 
 <table class="perf-table">
-    <thead><tr><th>動物</th><th>總食量</th><th>飽食度</th><th>達成</th></tr></thead>
+    <thead>
+        <tr>
+            <th width="35%">動物</th>
+            <th width="30%">總食量</th>
+            <th width="35%">飽食度</th>
+        </tr>
+    </thead>
     <tbody id="performanceBody"></tbody>
 </table>
 
@@ -48,33 +71,56 @@
 <div id="dinoContainer" class="dino-grid"></div>
 
 <script>
-// ⚠️ 已經替換為你提供的 GAS 網址
+// 使用你提供的 GAS 網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbVqEjy-kykFhD97zxMfWRA4TYf-nHdPy4SY_rpUUyvyoCHv8niiPZqcEd5StSRBBvZ/exec"; 
 
 const defaultDinos = [
-    { id: 0, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000 },
-    { id: 1, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0 },
-    { id: 2, icon: "Owl", name: "板橋環球", taxRate: 33, rent: 0 },
-    { id: 3, icon: "Fish", name: "內湖三總", taxRate: 33, rent: 0 },
-    { id: 4, icon: "Dino", name: "日月光B1", taxRate: 33, rent: 0 },
-    { id: 5, icon: "Cow", name: "北榮", taxRate: 33, rent: 0 },
-    { id: 6, icon: "Lobster", name: "林口A9", taxRate: 33, rent: 0 },
-    { id: 7, icon: "Rooster", name: "北投", taxRate: 33, rent: 0 }
+    { id: 0, icon: "🦖", name: "新竹巨城", taxRate: 33, rent: 9000 },
+    { id: 1, icon: "🐳", name: "桃園新光", taxRate: 33, rent: 0 },
+    { id: 2, icon: "🦉", name: "板橋環球", taxRate: 33, rent: 0 },
+    { id: 3, icon: "🐠", name: "內湖三總", taxRate: 33, rent: 0 },
+    { id: 4, icon: "🦕", name: "日月光B1", taxRate: 33, rent: 0 },
+    { id: 5, icon: "🐄", name: "北榮", taxRate: 33, rent: 0 },
+    { id: 6, icon: "🦞", name: "林口A9", taxRate: 33, rent: 0 },
+    { id: 7, icon: "🐓", name: "北投", taxRate: 33, rent: 0 }
 ];
 
 let counters = JSON.parse(JSON.stringify(defaultDinos)).map(d => ({ ...d, logs: [] }));
+
+// 解析日期的函數，確保 MM-DD 格式
+function parseCloudDate(dateInput) {
+    if (!dateInput) return "";
+    let dStr = String(dateInput);
+    // 如果是 ISO 格式 (2024-05-01T00:00:00Z)
+    if (dStr.includes('T')) return dStr.split('T')[0].slice(5);
+    // 如果是斜線格式 (2024/5/1)
+    if (dStr.includes('/')) {
+        let parts = dStr.split('/');
+        if (parts.length >= 3) {
+            let m = parts[1].padStart(2, '0');
+            let d = parts[2].split(' ')[0].padStart(2, '0');
+            return `${m}-${d}`;
+        }
+    }
+    return dStr; 
+}
 
 async function fetchCloudData() {
     try {
         const response = await fetch(GAS_URL + "?action=read");
         const data = await response.json();
+        
+        // 清空現有日誌
         counters.forEach(c => c.logs = []);
+        
         data.forEach(row => {
             const dino = counters.find(d => d.name.trim() === String(row.name).trim());
             if (dino) {
-                let dStr = String(row.date);
-                if (dStr.includes('T')) dStr = dStr.split('T')[0].slice(5);
-                dino.logs.push({ date: dStr, qty: row.qty, amt: row.amt });
+                dino.logs.push({
+                    date: parseCloudDate(row.date),
+                    qty: row.qty,
+                    amt: row.amt
+                });
             }
         });
         document.getElementById('status-msg').innerText = "✅ 雲端同步成功";
@@ -97,60 +143,98 @@ function render() {
         const cost = qty * 55.2;
         const tax = rev * (c.taxRate / 100);
         const profit = rev - tax - cost - (c.rent || 0);
-        gRev += rev; gExp += (tax + cost + (c.rent || 0));
-        const hpPercent = Math.min(Math.max((profit / 80000) * 100, 0), 100);
 
-        perfData.push({ icon: c.icon, name: c.name, rev, profit, hp: hpPercent });
+        gRev += rev; 
+        gExp += (tax + cost + (c.rent || 0));
+
+        perfData.push({ icon: c.icon, name: c.name, rev, profit });
 
         const card = document.createElement('div');
         card.className = 'dino-card';
         card.innerHTML = `
+            <div style="font-size: 40px; text-align: center; margin-bottom: 5px;">${c.icon}</div>
             <input class="editable-title" type="text" value="${c.name}" onchange="update(${c.id}, 'name', this.value)">
+            
             <div class="calc-area">
-                <div class="calc-row"><span>🥩 總食量:</span><b>$${rev.toLocaleString()}</b></div>
-                <div class="calc-row"><span>💖 飽食度:</span><b style="color:var(--p)">$${profit.toLocaleString(undefined,{maximumFractionDigits:0})}</b></div>
+                <div class="calc-row"><span>🥩 累積食量:</span><b>$${rev.toLocaleString()}</b></div>
+                <div class="calc-row"><span>💖 飽食度:</span><b style="color:var(--p)">$${profit.toLocaleString(undefined, {maximumFractionDigits:0})}</b></div>
             </div>
+
             <div class="input-row">
                 <input type="date" id="date-${c.id}" value="${new Date().toISOString().split('T')[0]}">
-                <input type="number" id="qty-${c.id}" placeholder="只">
+                <input type="number" id="qty-${c.id}" placeholder="只" step="1">
                 <input type="number" id="amt-${c.id}" placeholder="金額" onkeypress="if(event.key==='Enter')addAndSync(${c.id})">
             </div>
+            
             <button onclick="addAndSync(${c.id})">🍖 餵食同步</button>
+            
             <div class="log-list">
-                <table>${c.logs.map((l, i) => `<tr>
-                    <td><input class="log-input" type="text" value="${l.date}"></td>
-                    <td>${l.qty}</td>
-                    <td>$${l.amt.toLocaleString()}</td>
-                </tr>`).reverse().join('')}</table>
+                <table>
+                    ${c.logs.map((l, i) => `
+                        <tr>
+                            <td width="35%">${l.date}</td>
+                            <td width="25%">${l.qty} 只</td>
+                            <td width="40%">$${Number(l.amt).toLocaleString()}</td>
+                        </tr>
+                    `).reverse().join('')}
+                </table>
             </div>
         `;
         container.appendChild(card);
     });
 
-    perfData.sort((a,b)=>b.profit-a.profit).forEach(p=>{
-        perfBody.innerHTML += `<tr><td>${p.name}</td><td>$${(p.rev/1000).toFixed(1)}k</td><td style="color:var(--p);font-weight:bold">$${(p.profit/1000).toFixed(1)}k</td><td>${p.hp.toFixed(0)}%</td></tr>`;
+    // 渲染上方總覽 (不使用 K 縮寫，改用 toLocaleString)
+    perfData.sort((a,b) => b.profit - a.profit).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${p.icon} ${p.name}</td>
+            <td>$${p.rev.toLocaleString()}</td>
+            <td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+        `;
+        perfBody.appendChild(tr);
     });
 
     document.getElementById('gRev').innerText = '$' + gRev.toLocaleString();
     document.getElementById('gExp').innerText = '$' + gExp.toLocaleString(undefined, {maximumFractionDigits:0});
     document.getElementById('gProfit').innerText = '$' + (gRev - gExp).toLocaleString(undefined, {maximumFractionDigits:0});
-    localStorage.setItem('zoo_data_v21', JSON.stringify(counters));
 }
+
+window.update = (id, f, v) => { 
+    counters[id][f] = (f === 'name' ? v : parseFloat(v) || 0); 
+    render(); 
+};
 
 async function addAndSync(id) {
-    const q = document.getElementById(`qty-${id}`), a = document.getElementById(`amt-${id}`), d = document.getElementById(`date-${id}`);
-    if (!a.value) return alert("請輸入金額");
-    const log = { date: d.value.slice(5), amt: parseFloat(a.value), qty: parseInt(q.value)||0 };
-    const sData = { ...log, name: counters[id].name, fullDate: d.value };
+    const q = document.getElementById(`qty-${id}`), 
+          a = document.getElementById(`amt-${id}`), 
+          d = document.getElementById(`date-${id}`);
+          
+    if (!a.value) return alert("請輸入金額！");
+
+    const log = { 
+        date: d.value.slice(5), 
+        amt: parseFloat(a.value), 
+        qty: parseInt(q.value) || 0 
+    };
+
+    const sData = { 
+        ...log, 
+        name: counters[id].name, 
+        fullDate: d.value 
+    };
+
+    document.getElementById('status-msg').innerText = "⏳ 正在同步中...";
     
-    document.getElementById('status-msg').innerText = "⏳ 同步中...";
     try {
         await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(sData) });
-        fetchCloudData(); // 成功後重新抓取雲端資料以確保一致
         q.value = ''; a.value = '';
-    } catch (e) { alert("同步失敗"); }
+        fetchCloudData(); // 同步成功後重新抓取資料
+    } catch (e) {
+        document.getElementById('status-msg').innerText = "❌ 同步失敗，請檢查網路";
+    }
 }
 
+// 初始啟動
 fetchCloudData();
 </script>
 </body>
