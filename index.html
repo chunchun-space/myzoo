@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>五月動物園養殖 V18</title>
+    <style>
+        :root { --p: #558b2f; --bg: #fdfaf5; --text: #443e39; --accent: #ff7043; --hp-bg: #e0e0e0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 10px; }
+        
+        .header-banner { width: 100%; padding: 20px; background: #a8e6cf linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%); border-radius: 20px; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        .header-banner h1 { color: #2e7d32; font-size: 1.8rem; text-shadow: 1px 1px 0px white; }
+        
+        /* 表現總覽樣式 */
+        .performance-box { background: #fff; padding: 15px; border-radius: 20px; margin-bottom: 20px; border: 2px solid #558b2f; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .performance-box h3 { font-size: 1rem; color: var(--p); margin-bottom: 10px; text-align: center; }
+        .perf-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .perf-table th { background: #f0f4ef; padding: 5px; color: #555; }
+        .perf-table td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; }
+
+        .summary-box { background: white; padding: 15px; border-radius: 20px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; border: 2px solid #e1e8e1; }
+        .summary-box div span { font-size: 0.8rem; color: #888; display: block; }
+        .summary-box div b { font-size: 0.9rem; }
+
+        .dino-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
+        .dino-card { position: relative; background: white; border-radius: 25px; padding: 15px; border: 3px solid var(--p); box-shadow: 0 6px 15px rgba(0,0,0,0.08); overflow: hidden; }
+        
+        .stamp { position: absolute; top: 10px; left: -10px; transform: rotate(-15deg); padding: 5px 15px; border: 3px solid #ccc; color: #ccc; font-weight: bold; font-size: 0.8rem; border-radius: 5px; cursor: pointer; user-select: none; z-index: 10; background: white; }
+        .stamp.active { border-color: #f44336; color: #f44336; }
+
+        .editable-title { width: 100%; border: none; background: transparent; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--p); margin: 5px 0; border-bottom: 1px dashed #ccc; }
+        .dino-avatar { width: 70px; height: 70px; margin: 0 auto 5px; background: #fffde7; border-radius: 50%; border: 4px solid #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        
+        .hp-container { width: 180px; height: 16px; background: var(--hp-bg); margin: 0 auto 10px; border-radius: 10px; border: 2px solid #999; overflow: hidden; position: relative; }
+        .hp-bar { height: 100%; background: linear-gradient(to right, #ffeb3b, #4caf50); width: 0%; transition: width 0.6s ease; }
+        .hp-marker { position: absolute; width: 100%; text-align: center; font-size: 10px; line-height: 14px; top: 0; left: 0; pointer-events: none; }
+
+        .calc-area { background: #fffde7; padding: 10px; border-radius: 12px; margin-bottom: 12px; font-size: 0.9rem; }
+        .calc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        
+        .tax-input { width: 50px; font-size: 0.9rem; padding: 2px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        .rent-input { width: 90px; font-size: 0.9rem; padding: 2px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        
+        .input-row { display: grid; grid-template-columns: 1.8fr 1fr 1.5fr; gap: 5px; margin-bottom: 10px; }
+        .input-row input { padding: 8px 4px; border-radius: 8px; border: 1px solid #ddd; font-size: 0.9rem; width: 100%; }
+        
+        button { width: 100%; padding: 12px; border-radius: 15px; border: none; background: var(--p); color: white; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 0 #388e3c; cursor: pointer; }
+
+        .log-list { margin-top: 10px; height: 180px; overflow-y: auto; font-size: 0.8rem; border-top: 1px solid #eee; }
+        .log-list table { width: 100%; border-collapse: collapse; }
+        .log-list td { padding: 4px 2px; border-bottom: 1px solid #f9f9f9; }
+        .log-input { border: 1px solid #eee; width: 100%; padding: 2px; border-radius: 3px; font-size: 0.75rem; text-align: center; }
+
+        @media (max-width: 480px) {
+            .dino-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-banner">
+    <h1>五月動物園養殖</h1>
+    <p id="status-msg">森林少女的動物農莊</p>
+</div>
+
+<div class="performance-box">
+    <h3>🏆 動物表現總覽</h3>
+    <table class="perf-table">
+        <thead>
+            <tr>
+                <th>動物</th>
+                <th>名稱</th>
+                <th>總食量</th>
+                <th>飽食度</th>
+                <th>進度</th>
+            </tr>
+        </thead>
+        <tbody id="performanceBody"></tbody>
+    </table>
+</div>
+
+<div class="summary-box">
+    <div><span>🥩 總食量</span><b id="gRev" style="color: var(--accent);">$0</b></div>
+    <div><span>💸 總支出</span><b id="gExp" style="color: #78909c;">$0</b></div>
+    <div><span>💖 總飽食度</span><b id="gProfit" style="color: var(--p);">$0</b></div>
+</div>
+
+<div id="dinoContainer" class="dino-grid"></div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw3ngb-4LAyZRBRGYoQryCEufOIzzVSfN8iswp11iJvx24ysUs-661l6nUg4DVsUUhb/exec"; 
+
+const defaultDinos = [
+    { id: 0, icon: "🦖", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false },
+    { id: 1, icon: "🐳", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 2, icon: "🦉", name: "板橋環球", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 3, icon: "🐠", name: "內湖三總", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 4, icon: "🦕", name: "日月光B1", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 5, icon: "🐄", name: "北榮", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 6, icon: "🦞", name: "林口A9", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
+    { id: 7, icon: "🐓", name: "北投", taxRate: 33, rent: 0, extraTax: 0, harvested: false }
+];
+
+let savedData = localStorage.getItem('zoo_data_v18');
+let counters = savedData ? JSON.parse(savedData) : defaultDinos.map(d => ({ ...d, logs: [] }));
+
+function render() {
+    const container = document.getElementById('dinoContainer');
+    const perfBody = document.getElementById('performanceBody');
+    container.innerHTML = '';
+    perfBody.innerHTML = '';
+    
+    let gRev = 0, gExp = 0;
+    let perfData = [];
+
+    counters.forEach(c => {
+        const rev = c.logs.reduce((s, l) => s + (Number(l.amt) || 0), 0);
+        const qty = c.logs.reduce((s, l) => s + (Number(l.qty) || 0), 0);
+        const cost = qty * 55.2;
+        const tax = rev * (c.taxRate / 100);
+        const profit = rev - tax - cost - (c.rent || 0) - (c.extraTax || 0);
+
+        gRev += rev; 
+        gExp += (tax + cost + (c.rent || 0) + (c.extraTax || 0));
+
+        const hpLimit = 80000;
+        const hpPercent = Math.min(Math.max((profit / hpLimit) * 100, 0), 100);
+        const isFull = hpPercent >= 100;
+
+        perfData.push({ icon: c.icon, name: c.name, rev, profit, hpPercent });
+
+        const card = document.createElement('div');
+        card.className = 'dino-card';
+        card.innerHTML = `
+            <div class="stamp ${c.harvested ? 'active' : ''}" onclick="toggleHarvest(${c.id})">7/15 收成</div>
+            <div class="dino-avatar">${c.icon}</div>
+            
+            <div class="hp-container">
+                <div class="hp-bar" style="width: ${hpPercent}%; ${isFull ? 'background: #00e676;' : ''}"></div>
+                <div class="hp-marker">${isFull ? '👑 MAX' : '⭐'}</div>
+            </div>
+            
+            <input class="editable-title" type="text" value="${c.name}" onchange="update(${c.id}, 'name', this.value)">
+            
+            <div class="calc-area">
+                <div class="calc-row"><span>🥩 累積食量:</span><b>$${rev.toLocaleString()}</b></div>
+                <div class="calc-row"><span>📦 成本:</span><b>$${cost.toLocaleString(undefined, {maximumFractionDigits:0})}</b></div>
+                <div class="calc-row">
+                    <span>👑 國王稅: <input class="tax-input" type="number" value="${c.taxRate}" onchange="update(${c.id}, 'taxRate', this.value)">%</span>
+                    <span style="color:#888">$${tax.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                </div>
+                <div class="calc-row">
+                    <span>💸 補繳稅:</span>
+                    <input class="tax-input" style="width:90px" type="number" value="${c.extraTax || 0}" onchange="update(${c.id}, 'extraTax', this.value)">
+                </div>
+                <div class="calc-row">
+                    <span>🏠 小窩錢:</span>
+                    <input class="rent-input" type="number" value="${c.rent}" onchange="update(${c.id}, 'rent', this.value)">
+                </div>
+                <div class="calc-row" style="color:var(--p); font-weight:bold; border-top:1px dashed #ccc; padding-top:8px; margin-top:5px; font-size:1.1rem;">
+                    <span>💖 飽食度:</span><span>$${profit.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                </div>
+            </div>
+
+            <div class="input-row">
+                <input type="date" id="date-${c.id}" value="${new Date().toISOString().split('T')[0]}">
+                <input type="number" id="qty-${c.id}" placeholder="數量" onkeypress="handleEnter(event, ${c.id})">
+                <input type="number" id="amt-${c.id}" placeholder="金額" onkeypress="handleEnter(event, ${c.id})">
+            </div>
+            
+            <button onclick="addAndSync(${c.id})">🍖 餵食同步</button>
+            
+            <div class="log-list">
+                <table>
+                    <thead>
+                        <tr style="color:#888; font-size:0.7rem;">
+                            <th width="35%">日期</th><th width="20%">數量</th><th width="35%">金額</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${c.logs.map((l, i) => `
+                            <tr>
+                                <td><input class="log-input" type="text" value="${l.date}" onchange="editLog(${c.id}, ${i}, 'date', this.value)"></td>
+                                <td><input class="log-input" type="number" value="${l.qty}" onchange="editLog(${c.id}, ${i}, 'qty', this.value)"></td>
+                                <td><input class="log-input" type="number" value="${l.amt}" onchange="editLog(${c.id}, ${i}, 'amt', this.value)"></td>
+                                <td style="color:red; cursor:pointer; text-align:right;" onclick="remove(${c.id}, ${i})">×</td>
+                            </tr>
+                        `).reverse().join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    // 渲染表現總覽 (依飽食度排序)
+    perfData.sort((a, b) => b.profit - a.profit).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-size:1.2rem">${p.icon}</td>
+            <td>${p.name}</td>
+            <td>$${p.rev.toLocaleString()}</td>
+            <td style="color:var(--p); font-weight:bold;">$${p.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+            <td>${p.hpPercent.toFixed(0)}%</td>
+        `;
+        perfBody.appendChild(tr);
+    });
+
+    document.getElementById('gRev').innerText = '$' + gRev.toLocaleString();
+    document.getElementById('gExp').innerText = '$' + gExp.toLocaleString(undefined, {maximumFractionDigits:0});
+    document.getElementById('gProfit').innerText = '$' + (gRev - gExp).toLocaleString(undefined, {maximumFractionDigits:0});
+    
+    localStorage.setItem('zoo_data_v18', JSON.stringify(counters));
+}
+
+function handleEnter(e, id) { if (e.key === 'Enter') addAndSync(id); }
+
+function toggleHarvest(id) {
+    counters[id].harvested = !counters[id].harvested;
+    render();
+}
+
+window.update = (id, f, v) => { 
+    counters[id][f] = (f === 'name') ? v : (parseFloat(v) || 0); 
+    render(); 
+};
+
+window.editLog = (cardId, logIdx, field, val) => {
+    counters[cardId].logs[logIdx][field] = (field === 'date') ? val : (parseFloat(val) || 0);
+    render();
+};
+
+async function addAndSync(id) {
+    const q = document.getElementById(`qty-${id}`);
+    const a = document.getElementById(`amt-${id}`);
+    const d = document.getElementById(`date-${id}`);
+    if (a.value === "") return alert("請輸入金額！");
+
+    const log = { 
+        date: d.value.slice(5), 
+        amt: parseFloat(a.value) || 0, 
+        qty: parseInt(q.value) || 0
+    };
+
+    counters[id].logs.push(log);
+    render();
+    
+    q.value = ''; a.value = '';
+
+    document.getElementById('status-msg').innerText = "⏳ 同步中...";
+    try {
+        await fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ ...log, name: counters[id].name }) });
+        document.getElementById('status-msg').innerText = "✅ 同步成功！";
+    } catch (e) {
+        document.getElementById('status-msg').innerText = "❌ 同步失敗 (已存本地)";
+    }
+}
+
+window.remove = (id, i) => { 
+    if(confirm("確定刪除這筆紀錄嗎？")) {
+        counters[id].logs.splice(i, 1); 
+        render(); 
+    }
+};
+
+render();
+</script>
+</body>
+</html>
+</html>
