@@ -253,7 +253,12 @@ async function addAndSync(id) {
     const q = document.getElementById(`qty-${id}`), a = document.getElementById(`amt-${id}`), d = document.getElementById(`date-${id}`);
     if (a.value === "") return alert("請輸入金額");
     
-    const log = { date: d.value.slice(5), fullDate: d.value, amt: parseFloat(a.value) || 0, qty: parseInt(q.value) || 0 };
+   const log = { 
+  date: d.value.slice(5), 
+  fullDate: d.value, 
+  amt: Number(a.value) || 0, // 確保這裡是 Number
+  qty: Number(q.value) || 0  // 確保這裡是 Number
+};
     const sData = { action: "add", ...log, name: counters[id].name };
     
     counters[id].logs.push(log);
