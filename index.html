@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>五月動物園 V30-全同步版</title>
+    <title>五月動物園 V30-修正版</title>
     <style>
         :root { --p: #558b2f; --bg: #fdfaf5; --text: #443e39; --accent: #ff7043; --hp-bg: #e0e0e0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
@@ -60,6 +60,9 @@
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxpzlFOkwTEY6TiOybrPfQImTSTUd-KICltPBlTsUtTE96_7RpOPOhairXBB5lgPdQD2A/exec"; 
 
+// --- 重要修正：定義全域日期變數 ---
+let selectedDate = localStorage.getItem('lastZooDate') || new Date().toISOString().split('T')[0];
+
 const defaultDinos = [
     { id: 0, icon: "Rex", name: "新竹巨城", taxRate: 33, rent: 9000, extraTax: 0, harvested: false },
     { id: 1, icon: "Whale", name: "桃園新光", taxRate: 33, rent: 0, extraTax: 0, harvested: false },
@@ -111,11 +114,10 @@ async function fetchCloudData() {
     }
 }
 
-// 新增：處理日期更動
 function handleDateChange(newVal) {
     selectedDate = newVal;
     localStorage.setItem('lastZooDate', newVal);
-    render(); // 立即重新渲染，鎖定所有輸入框的日期
+    render(); 
 }
 
 function render() {
