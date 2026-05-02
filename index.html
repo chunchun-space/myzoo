@@ -58,7 +58,6 @@
 <div id="dinoContainer" class="dino-grid"></div>
 
 <script>
-// 請更換為您的最新 GAS 部署網址
 const GAS_URL = "https://script.google.com/macros/s/AKfycbxpzlFOkwTEY6TiOybrPfQImTSTUd-KICltPBlTsUtTE96_7RpOPOhairXBB5lgPdQD2A/exec"; 
 
 const defaultDinos = [
@@ -74,12 +73,14 @@ const defaultDinos = [
 
 let counters = JSON.parse(JSON.stringify(defaultDinos)).map(d => ({ ...d, logs: [] }));
 
+// 新增：用來記錄目前選擇的日期，預設為今天
+let selectedDate = localStorage.getItem('lastZooDate') || new Date().toISOString().split('T')[0];
+
 function getDinoEmoji(iconName) {
     const emojis = { "Rex": "🦖", "Whale": "🐳", "Owl": "🦉", "Fish": "🐠", "Dino": "🦕", "Cow": "🐄", "Lobster": "🦞", "Rooster": "🐓" };
     return emojis[iconName] || "❓";
 }
 
-// 核心同步函式：儲存所有設定到雲端
 async function cloudSaveSettings() {
     const settings = counters.map(c => ({
         id: c.id, et: c.extraTax, rt: c.rent, tr: c.taxRate, hv: c.harvested, nm: c.name
@@ -94,15 +95,11 @@ async function fetchCloudData() {
     try {
         const response = await fetch(GAS_URL + "?action=read");
         const resData = await response.json();
-        
-        // 1. 同步紀錄
         counters.forEach(c => c.logs = []);
         resData.logs.forEach(row => {
             const dino = counters.find(d => d.name.trim() === String(row.name).trim());
             if (dino) dino.logs.push({ date: row.date, qty: row.qty, amt: row.amt });
         });
-
-        // 2. 同步設定 (稅率、收成章等)
         if (resData.settings) {
             resData.settings.forEach(s => {
                 const d = counters.find(c => c.id === s.id);
@@ -115,6 +112,13 @@ async function fetchCloudData() {
         document.getElementById('status-msg').innerText = "⚠️ 目前為離線模式";
         render();
     }
+}
+
+// 新增：處理日期更動
+function handleDateChange(newVal) {
+    selectedDate = newVal;
+    localStorage.setItem('lastZooDate', newVal);
+    render(); // 重新渲染讓所有卡片的日期同步
 }
 
 function render() {
@@ -149,7 +153,11 @@ function render() {
                 <div class="calc-row" style="color: #5d4037;"><span>🏠 小窩錢:</span><input type="number" class="manual-input" value="${c.rent}" onchange="update(${c.id}, 'rent', this.value)"></div>
                 <div class="calc-row" style="color:var(--p); font-weight:bold; border-top:1px dashed #ccc; padding-top:8px; margin-top:5px;"><span>💖 飽食度:</span><span>$${profit.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
             </div>
-            <div class="input-row"><input type="date" id="date-${c.id}" value="${new Date().toISOString().split('T')[0]}"><input type="number" id="qty-${c.id}" placeholder="只"><input type="number" id="amt-${c.id}" placeholder="金額" onkeypress="if(event.key==='Enter')addAndSync(${c.id})"></div>
+            <div class="input-row">
+                <input type="date" id="date-${c.id}" value="${selectedDate}" onchange="handleDateChange(this.value)">
+                <input type="number" id="qty-${c.id}" placeholder="只">
+                <input type="number" id="amt-${c.id}" placeholder="金額" onkeypress="if(event.key==='Enter')addAndSync(${c.id})">
+            </div>
             <button onclick="addAndSync(${c.id})">🍖 餵食同步</button>
             <div class="log-list"><table>${c.logs.map((l, idx) => `<tr><td width="25%">${l.date}</td><td width="25%">${l.qty}只</td><td width="30%">$${Number(l.amt).toLocaleString()}</td><td width="20%"><span class="del-btn" onclick="deleteLog(${c.id}, ${idx})">刪除</span></td></tr>`).reverse().join('')}</table></div>
         `;
