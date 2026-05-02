@@ -73,9 +73,6 @@ const defaultDinos = [
 
 let counters = JSON.parse(JSON.stringify(defaultDinos)).map(d => ({ ...d, logs: [] }));
 
-// 新增：用來記錄目前選擇的日期，預設為今天
-let selectedDate = localStorage.getItem('lastZooDate') || new Date().toISOString().split('T')[0];
-
 function getDinoEmoji(iconName) {
     const emojis = { "Rex": "🦖", "Whale": "🐳", "Owl": "🦉", "Fish": "🐠", "Dino": "🦕", "Cow": "🐄", "Lobster": "🦞", "Rooster": "🐓" };
     return emojis[iconName] || "❓";
@@ -118,7 +115,7 @@ async function fetchCloudData() {
 function handleDateChange(newVal) {
     selectedDate = newVal;
     localStorage.setItem('lastZooDate', newVal);
-    render(); // 重新渲染讓所有卡片的日期同步
+    render(); // 立即重新渲染，鎖定所有輸入框的日期
 }
 
 function render() {
@@ -154,7 +151,9 @@ function render() {
                 <div class="calc-row" style="color:var(--p); font-weight:bold; border-top:1px dashed #ccc; padding-top:8px; margin-top:5px;"><span>💖 飽食度:</span><span>$${profit.toLocaleString(undefined, {maximumFractionDigits:0})}</span></div>
             </div>
             <div class="input-row">
-                <input type="date" id="date-${c.id}" value="${selectedDate}" onchange="handleDateChange(this.value)">
+                <input type="date" id="date-${c.id}" 
+       value="${selectedDate}" 
+       onchange="handleDateChange(this.value)">
                 <input type="number" id="qty-${c.id}" placeholder="只">
                 <input type="number" id="amt-${c.id}" placeholder="金額" onkeypress="if(event.key==='Enter')addAndSync(${c.id})">
             </div>
